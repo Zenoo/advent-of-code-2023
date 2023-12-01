@@ -3,36 +3,63 @@ import run from "aocrunner";
 const parseInput = (rawInput: string) => rawInput.split("\n");
 
 const part1 = (rawInput: string) => {
-  const input = parseInput(rawInput).map((line) => line.replace(/\D+/g, ""));
+  const input = parseInput(rawInput);
 
-  return input.map((line) => +`${line[0]}${line[line.length - 1]}`).reduce((a, b) => a + b, 0);
+  return input.reduce((acc, line) => {
+    const numbers = line.replace(/\D+/g, "");
+
+    return acc + +`${numbers[0]}${numbers[numbers.length - 1]}`;
+  }, 0);
 };
 
 const part2 = (rawInput: string) => {
-  const numberStrings = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
-  const reversedNumberStrings = numberStrings.map((numberString) => numberString.split('').reverse().join(''));
+  enum NumberString {
+    one = 1,
+    two = 2,
+    three = 3,
+    four = 4,
+    five = 5,
+    six = 6,
+    seven = 7,
+    eight = 8,
+    nine = 9,
+  }
+  const numberRegex = new RegExp(Object.keys(NumberString).join('|'));
+  enum ReversedNumberString {
+    eno = 1,
+    owt = 2,
+    eerht = 3,
+    ruof = 4,
+    evif = 5,
+    xis = 6,
+    neves = 7,
+    thgie = 8,
+    enin = 9,
+  }
+  const reverseNumberRegex = new RegExp(Object.keys(ReversedNumberString).join('|'));
+
   const input = parseInput(rawInput);
 
-  const resultingNumbers = input.map((line) => {
+  return input.reduce((acc, line) => {
     let newLine = line;
 
     // Check if a stringified number is present before the first number
     const firstNumberIndex = newLine.search(/\d/);
-    const firstStringifiedNumberIndex = new RegExp(numberStrings.join('|')).exec(newLine)?.index ?? -1;
+    const firstStringifiedNumberIndex = numberRegex.exec(newLine)?.index ?? -1;
 
-    if (firstStringifiedNumberIndex !== -1 && firstStringifiedNumberIndex < firstNumberIndex) {
+    if (firstNumberIndex === -1 || firstStringifiedNumberIndex !== -1 && firstStringifiedNumberIndex < firstNumberIndex) {
       // Replace first occurence any of the number strings with number
-      newLine = newLine.replace(new RegExp(numberStrings.join('|')), (match) => `${numberStrings.indexOf(match) + 1}`);
+      newLine = newLine.replace(numberRegex, (match) => `${NumberString[match as keyof typeof NumberString]}`)
     }
 
     // Check if a stringified number is present after the last number
     const reversedLine = newLine.split('').reverse().join('');
-    const lastNumberIndex = reversedLine.search(/\d(?!\d)/);
-    const lastStringifiedNumberIndex = new RegExp(reversedNumberStrings.join('|')).exec(reversedLine)?.index ?? -1;
+    const lastNumberIndex = reversedLine.search(/\d/);
+    const lastStringifiedNumberIndex = reverseNumberRegex.exec(reversedLine)?.index ?? -1;
 
-    if (lastStringifiedNumberIndex !== -1 && lastStringifiedNumberIndex < lastNumberIndex) {
+    if (lastNumberIndex === -1 || lastStringifiedNumberIndex !== -1 && lastStringifiedNumberIndex < lastNumberIndex) {
       // Replace last occurence any of the number strings with number
-      newLine = reversedLine.replace(new RegExp(reversedNumberStrings.join('|')), (match) => `${reversedNumberStrings.indexOf(match) + 1}`)
+      newLine = reversedLine.replace(reverseNumberRegex, (match) => `${ReversedNumberString[match as keyof typeof ReversedNumberString]}`)
         .split('').reverse().join('');
     }
 
@@ -42,11 +69,8 @@ const part2 = (rawInput: string) => {
     // Get the first and last number
     newLine = `${newLine[0]}${newLine[newLine.length - 1]}`;
 
-    return +newLine;
-  });
-
-  // Return the sum of the numbers
-  return resultingNumbers.reduce((a, b) => a + b, 0);
+    return acc + +newLine;
+  }, 0);
 };
 
 run({
