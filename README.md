@@ -104,9 +104,9 @@ Both parts: 1.553ms
 
 ```
 Day 06
-Time part 1: 0.046ms
-Time part 2: 30.244ms
-Both parts: 30.29ms
+Time part 1: 0.033ms
+Time part 2: 0.12ms
+Both parts: 0.153ms
 ```
 
 ```
@@ -244,7 +244,7 @@ Both parts: -
 
 ```
 Total stars: 11/50
-Total time: 45.145ms
+Total time: 15.008ms
 ```
 
 <!--/RESULTS-->

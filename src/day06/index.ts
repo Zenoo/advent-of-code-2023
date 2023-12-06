@@ -57,19 +57,37 @@ const part2 = (rawInput: string) => {
     return (time - press) * press;
   };
 
-  // Find first press time > record
+  // Find first press where time > record
   let minPress = 0;
-  while (simulation(time, minPress) <= record) {
-    minPress++;
+  let maxPress = time;
+  let midPress = Math.floor((minPress + maxPress) / 2);
+  while (minPress < maxPress) {
+    midPress = Math.floor((minPress + maxPress) / 2);
+    if (simulation(time, midPress) > record) {
+      maxPress = midPress;
+    } else {
+      minPress = midPress + 1;
+    }
   }
 
-  // Find last press time > record
-  let maxPress = minPress;
-  while (simulation(time, maxPress) > record) {
-    maxPress++;
+  const min = minPress;
+
+  // Find last press where time > record
+  minPress = 0;
+  maxPress = time;
+  midPress = Math.floor((minPress + maxPress) / 2);
+  while (minPress < maxPress) {
+    midPress = Math.floor((minPress + maxPress) / 2);
+    if (simulation(time, midPress) >= record) {
+      minPress = midPress + 1;
+    } else {
+      maxPress = midPress;
+    }
   }
 
-  return maxPress - minPress;
+  const max = minPress;
+
+  return max - min;
 };
 
 run({
@@ -87,10 +105,13 @@ run({
   },
   part2: {
     tests: [
-      // {
-      //   input: ``,
-      //   expected: "",
-      // },
+      {
+        input: `
+        Time:      7  15   30
+        Distance:  9  40  200
+        `,
+        expected: 71503,
+      },
     ],
     solution: part2,
   },
