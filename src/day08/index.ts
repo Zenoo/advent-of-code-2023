@@ -27,6 +27,10 @@ const part1 = (rawInput: string) => {
   return steps;
 };
 
+const gcd = (a: number, b: number): number => a ? gcd(b % a, a) : b;
+
+const lcm = (a: number, b: number) => a * b / gcd(a, b);
+
 const part2 = (rawInput: string) => {
   const input = parseInput(rawInput);
 
@@ -34,50 +38,36 @@ const part2 = (rawInput: string) => {
 
   // Positions ending with A
   const positions = choices.filter((c) => /^.{2}A/.test(c)).map((c) => c.split(' ')[0]);
-  let positionsEndingWithZ = 0;
-  let directionIndex = 0;
-  let steps = 0;
+  const steps: number[] = [];
 
-  const memo: Record<string, { L: string; R: string }> = {};
-  
-  while (positionsEndingWithZ < positions.length) {
-    positionsEndingWithZ = 0;
+  for (let i = 0; i < positions.length; i++) {
+    let position = positions[i];
+    let step = 1;
+    let directionIndex = 0;
+    let done = false;
 
-    for (let i = 0; i < positions.length; i++) {
-      const position = positions[i];
-      const currentMemo = memo[position];
-
-      if (currentMemo) {
-        positions[i] = directions[directionIndex] === 'L' ? currentMemo.L : currentMemo.R;
-        if (positions[i].endsWith('Z')) {
-          positionsEndingWithZ++;
-        }
-        continue;
-      }
-
+    while (!done) {
       const choice = choices.find((c) => c.startsWith(position));
       if (!choice) {
         throw new Error(`No choice found for ${position}`);
       }
-
+  
       const regex = new RegExp(`${position} = \\((.*), (.*)\\)`);
       const [, leftName, rightName] = choice.match(regex) || [];
-
-      // Memoize
-      memo[position] = { L: leftName, R: rightName };
-
-      positions[i] = directions[directionIndex] === 'L' ? leftName : rightName;
-
-      if (positions[i].endsWith('Z')) {
-        positionsEndingWithZ++;
+  
+      position = directions[directionIndex] === 'L' ? leftName : rightName;
+  
+      if (position.endsWith('Z')) {
+        steps[i] = step;
+        done = true;
       }
-    }
 
-    directionIndex = (directionIndex + 1) % directions.length;
-    steps++;
+      directionIndex = (directionIndex + 1) % directions.length;
+      step++;
+    }
   }
 
-  return steps;
+  return steps.reduce(lcm);
 };
 
 run({
